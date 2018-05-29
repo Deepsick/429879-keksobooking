@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Артем Макаров](https://up.htmlacademy.ru/javascript/14/user/429879).
-* Наставник: `Неизвестно`.
+* Наставник: [Владислав Балабанович](https://up.htmlacademy.ru/htmlcss/20/user/6394).
 
 ---
 
