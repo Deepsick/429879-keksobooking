@@ -26,11 +26,17 @@ var MAX_Y = 630;
 
 
 for (var i = 1; i <= AUTHOR_AMOUNT; i++) {
-  var id = '0' + i.toString();
+  var id = '0' + i;
   AVATAR_IDS.push(id);
 }
 
-
+/**
+ * Получаем случайный элемент массива array
+ * @param  {Array}  array        Массив, из которого берется случайный элемент
+ * @param  {Boolean} isUnique
+ * @param  {Boolean} isNotDeleted
+ * @return {any}
+ */
 var getRandomeElement = function (array, isUnique, isNotDeleted) {
   var currentArray = array;
   if (isNotDeleted) {
@@ -43,11 +49,24 @@ var getRandomeElement = function (array, isUnique, isNotDeleted) {
   return randomElement;
 };
 
+/**
+ * Получаем случайный элемент из диапазона start-end
+ * @param  {[number]} start
+ * @param  {[number]} end
+ * @return {[number]}
+ */
 var getRandomNumberFrominterval = function (start, end) {
   var randomNumber = Math.floor(Math.random() * (end - start) + start);
   return randomNumber;
 };
 
+/**
+ * Получаем массив элементов в случайном порядке из массива array
+ * @param  {Array}  array
+ * @param  {Boolean} isRandomLength Если true, устанавливаем случайную длину нового массива,
+ * но не больше, чем длина исходного массива
+ * @return {Array}
+ */
 var getRandomArray = function (array, isRandomLength) {
   var newArray = [];
   var arrayLength = array.length;
@@ -66,7 +85,11 @@ var getRandomArray = function (array, isRandomLength) {
 
 var ads = [];
 
-for (i = 0; i < AUTHOR_AMOUNT; i++) {
+/**
+ * Создаем объект объявления на основе исходных данных
+ * @return {[Object]}
+ */
+var createAuthor = function () {
   var locationX = getRandomNumberFrominterval(MIN_X, MAX_X);
   var locationY = getRandomNumberFrominterval(MIN_Y, MAX_Y);
   var ad = {
@@ -76,7 +99,7 @@ for (i = 0; i < AUTHOR_AMOUNT; i++) {
 
     'offer': {
       'title': getRandomeElement(TITLES, true),
-      'address': locationX.toString() + ', ' + locationY.toString(),
+      'address': locationX + ', ' + locationY,
       'price': getRandomNumberFrominterval(MIN_PRICE, MAX_PRICE),
       'type': getRandomeElement(TYPES),
       'rooms': getRandomNumberFrominterval(MIN_AMOUNT_ROOMS, MAX_AMOUNT_ROOMS),
@@ -93,26 +116,36 @@ for (i = 0; i < AUTHOR_AMOUNT; i++) {
       'y': locationY
     }
   };
+  return ad;
+};
+
+for (i = 0; i < AUTHOR_AMOUNT; i++) {
+  var ad = createAuthor();
   ads.push(ad);
 }
 
 var map = document.querySelector('.map');
 var mapCard = document.querySelector('template')
-              .content
-              .querySelector('.map__card');
+                      .content
+                      .querySelector('.map__card');
 var pin = document.querySelector('template')
-          .content
-          .querySelector('.map__pin');
+                  .content
+                  .querySelector('.map__pin');
 
 map.classList.remove('map--faded');
 
+/**
+ * Создаем элемент метки на основе объекта
+ * @param  {Object} author
+ * @return {Html-node}
+ */
 var createPin = function (author) {
   var newPin = pin.cloneNode(true);
 
   newPin.querySelector('img').src = author.author.avatar;
   newPin.querySelector('img').alt = author.offer.title;
-  newPin.style.left = author.location.x.toString() + 'px';
-  newPin.style.top = author.location.y.toString() + 'px';
+  newPin.style.left = author.location.x + 'px';
+  newPin.style.top = author.location.y + 'px';
 
   return newPin;
 };
@@ -123,7 +156,11 @@ for (i = 0; i < ads.length; i++) {
 }
 document.querySelector('.map__pins').appendChild(pinFragment);
 
-
+/**
+ * Создаем элемент объявления на основе объекта author
+ * @param  {Object} author
+ * @return {Html-node}
+ */
 var createAd = function (author) {
   var newAd = mapCard.cloneNode(true);
 
@@ -132,14 +169,16 @@ var createAd = function (author) {
   newAd.querySelector('.popup__text--address').textContent = author.offer.address;
   newAd.querySelector('.popup__text--price').textContent = author.offer.price + '₽/ночь';
   newAd.querySelector('.popup__type').textContent = RUSSIAN_TYPES[author.offer.type];
-  newAd.querySelector('.popup__text--capacity').textContent = (author.offer.rooms).toString() + ' комнаты для ' + (author.offer.guests).toString() + ' гостей';
-  newAd.querySelector('.popup__text--time').textContent = 'Заезд после ' + (author.offer.checkin).toString() + ', выезд до ' + (author.offer.checkout).toString();
+  newAd.querySelector('.popup__text--capacity').textContent = (author.offer.rooms) + ' комнаты для ' + (author.offer.guests) + ' гостей';
+  newAd.querySelector('.popup__text--time').textContent = 'Заезд после ' + (author.offer.checkin) + ', выезд до ' + (author.offer.checkout);
   newAd.querySelector('.popup__features').innerHTML = '';
   newAd.querySelector('.popup__features').textContent = author.offer.description;
   newAd.querySelector('.popup__photos').innerHTML = '';
   for (i = 0; i < author.offer.photos.length; i++) {
     var newPhoto = document.createElement('img');
     newPhoto.src = author.offer.photos[i];
+    newPhoto.width = 45;
+    newPhoto.height = 40;
     newAd.querySelector('.popup__photos').append(newPhoto);
   }
 
@@ -153,8 +192,5 @@ var createAd = function (author) {
 };
 
 var currentAd = createAd(ads[0]);
-// for (i = 0; i < ads.length; i++) {
-//   AdFragment.appendChild(createAd(ads[i]));
-// }
 document.querySelector('.map__filters-container').before(currentAd);
 
