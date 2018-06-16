@@ -156,6 +156,7 @@ var createPin = function (author) {
 
   return newPin;
 };
+
 var filtersContainer = document.querySelector('.map__filters-container');
 
 var pinFragment = document.createDocumentFragment();
@@ -206,6 +207,33 @@ var mainPinY = parseInt(mainPin.style.top, 10);
 var adForm = document.querySelector('.ad-form');
 var addressInput = document.querySelector('#address');
 
+/**
+ * Получаем html-node и удаляем из разметки
+ * @param  {Html-node} popup
+ */
+var closePopup = function (popup) {
+  map.removeChild(popup);
+};
+
+/**
+* Получаем htm-node метки pinNode и вставляем соответствующее объявление в разметку. Если
+* объявление уже есть в разметке, то оно удаляется. Также вешаем на текущее объявление
+* обработчика клика для кнопки закрытия попапа.
+* @param  {Html-node} pinNode
+*/
+var showAd = function (pinNode) {
+  var index = pins.indexOf(pinNode);
+  var popup = document.querySelector('.popup');
+  if (popup) {
+    closePopup(popup);
+  }
+  filtersContainer.before(createAd(ads[index]));
+  popup = document.querySelector('.popup');
+  var closePopupButton = document.querySelector('.popup__close');
+  closePopupButton.addEventListener('click', function () {
+    closePopup(popup);
+  });
+};
 
 mainPin.addEventListener('mouseup', function () {
 
@@ -215,31 +243,17 @@ mainPin.addEventListener('mouseup', function () {
     formFieldsets[i].disabled = false;
   }
   addressInput.value = (mainPinX + MAIN_PIN_SIZES.width / 2) + ', ' + (mainPinY + MAIN_PIN_SIZES.height);
-  document.querySelector('.map__pins').appendChild(pinFragment);
+  var pinsNodes = document.querySelector('.map__pins');
+  pinsNodes.appendChild(pinFragment);
 
-
-  var showAd = function (pinNode) {
-    var index = pins.indexOf(pinNode);
-    var popup = document.querySelector('.popup');
-    if (popup) {
-      map.removeChild(popup);
-    }
-    filtersContainer.before(createAd(ads[index]));
-  };
-  // for (i = 0; i < pins.length; i++) {
-  //   var index = pins.indexOf(pins[i]);
-  //   pins[i].addEventListener('click', function () {
-  //     showAd(index);
-  //   });
-  // }
-  map.addEventListener('click', function (evt) {
+  pinsNodes.addEventListener('click', function (evt) {
     var target = evt.target;
     if (target.classList.contains('map__pin--main') ||
         target.parentNode.classList.contains('map__pin--main')) {
       return;
-    } else if (target.tagName.toLowerCase() === 'button') {
+    } else if (target.className === 'map__pin') {
       showAd(target);
-    } else if (target.tagName.toLowerCase() === 'img') {
+    } else if (target.parentNode.className === 'map__pin') {
       showAd(target.parentNode);
     }
   });
