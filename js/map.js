@@ -137,9 +137,18 @@ var pin = document.querySelector('template')
                   .querySelector('.map__pin');
 
 var formFieldsets = document.querySelectorAll('.ad-form fieldset');
-for (i = 0; i < formFieldsets.length; i++) {
-  formFieldsets[i].disabled = true;
-}
+
+/**
+ * Устанавливаем или убираем атрибут disable у fieldset-ов формы
+ * @param  {Boolean} isDisabled
+ */
+var disableFieldsets = function (isDisabled) {
+  for (i = 0; i < formFieldsets.length; i++) {
+    formFieldsets[i].disabled = isDisabled;
+  }
+};
+
+disableFieldsets(true);
 
 /**
  * Создаем элемент метки на основе объекта
@@ -194,7 +203,8 @@ var createAd = function (author) {
 
   for (i = 0; i < author.offer.features.length; i++) {
     var featuresItem = document.createElement('li');
-    featuresItem.textContent = author.offer.features[i];
+    featuresItem.classList.add('popup__feature');
+    featuresItem.classList.add('popup__feature--' + author.offer.features[i]);
     newAd.querySelector('.popup__features').append(featuresItem);
   }
 
@@ -239,9 +249,7 @@ mainPin.addEventListener('mouseup', function () {
 
   map.classList.remove('map--faded');
   adForm.classList.remove('ad-form--disabled');
-  for (i = 0; i < formFieldsets.length; i++) {
-    formFieldsets[i].disabled = false;
-  }
+  disableFieldsets(false);
   addressInput.value = (mainPinX + MAIN_PIN_SIZES.width / 2) + ', ' + (mainPinY + MAIN_PIN_SIZES.height);
   var pinsNodes = document.querySelector('.map__pins');
   pinsNodes.appendChild(pinFragment);
