@@ -10,6 +10,10 @@ var RUSSIAN_TYPES = {
   'house': 'Дом',
   'bungalo': 'Бунгало'
 };
+var MAIN_PIN_SIZES = {
+  width: 40,
+  height: 44
+};
 var TIMES = ['12:00', '13:00', '14:00'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var AUTHOR_AMOUNT = 8;
@@ -132,7 +136,19 @@ var pin = document.querySelector('template')
                   .content
                   .querySelector('.map__pin');
 
-map.classList.remove('map--faded');
+var formFieldsets = document.querySelectorAll('.ad-form fieldset');
+
+/**
+ * Устанавливаем или убираем атрибут disable у fieldset-ов формы
+ * @param  {Boolean} isDisabled
+ */
+var disableFieldsets = function (isDisabled) {
+  for (i = 0; i < formFieldsets.length; i++) {
+    formFieldsets[i].disabled = isDisabled;
+  }
+};
+
+disableFieldsets(true);
 
 /**
  * Создаем элемент метки на основе объекта
@@ -150,11 +166,14 @@ var createPin = function (author) {
   return newPin;
 };
 
+var filtersContainer = document.querySelector('.map__filters-container');
+
 var pinFragment = document.createDocumentFragment();
+var pins = [];
 for (i = 0; i < ads.length; i++) {
-  pinFragment.appendChild(createPin(ads[i]));
+  pins.push(createPin(ads[i]));
+  pinFragment.appendChild(pins[i]);
 }
-document.querySelector('.map__pins').appendChild(pinFragment);
 
 /**
  * Создаем элемент объявления на основе объекта author
@@ -184,13 +203,67 @@ var createAd = function (author) {
 
   for (i = 0; i < author.offer.features.length; i++) {
     var featuresItem = document.createElement('li');
-    featuresItem.textContent = author.offer.features[i];
+    featuresItem.classList.add('popup__feature');
+    featuresItem.classList.add('popup__feature--' + author.offer.features[i]);
     newAd.querySelector('.popup__features').append(featuresItem);
   }
 
   return newAd;
 };
 
-var currentAd = createAd(ads[0]);
-document.querySelector('.map__filters-container').before(currentAd);
+var mainPin = document.querySelector('.map__pin--main');
+var mainPinX = parseInt(mainPin.style.left, 10);
+var mainPinY = parseInt(mainPin.style.top, 10);
+var adForm = document.querySelector('.ad-form');
+var addressInput = document.querySelector('#address');
+
+/**
+ * Получаем html-node и удаляем из разметки
+ * @param  {Html-node} popup
+ */
+var closePopup = function (popup) {
+  map.removeChild(popup);
+};
+
+/**
+* Получаем htm-node метки pinNode и вставляем соответствующее объявление в разметку. Если
+* объявление уже есть в разметке, то оно удаляется. Также вешаем на текущее объявление
+* обработчика клика для кнопки закрытия попапа.
+* @param  {Html-node} pinNode
+*/
+var showAd = function (pinNode) {
+  var index = pins.indexOf(pinNode);
+  var popup = document.querySelector('.popup');
+  if (popup) {
+    closePopup(popup);
+  }
+  filtersContainer.before(createAd(ads[index]));
+  popup = document.querySelector('.popup');
+  var closePopupButton = document.querySelector('.popup__close');
+  closePopupButton.addEventListener('click', function () {
+    closePopup(popup);
+  });
+};
+
+mainPin.addEventListener('mouseup', function () {
+
+  map.classList.remove('map--faded');
+  adForm.classList.remove('ad-form--disabled');
+  disableFieldsets(false);
+  addressInput.value = (mainPinX + MAIN_PIN_SIZES.width / 2) + ', ' + (mainPinY + MAIN_PIN_SIZES.height);
+  var pinsNodes = document.querySelector('.map__pins');
+  pinsNodes.appendChild(pinFragment);
+
+  pinsNodes.addEventListener('click', function (evt) {
+    var target = evt.target;
+    if (target.classList.contains('map__pin--main') ||
+        target.parentNode.classList.contains('map__pin--main')) {
+      return;
+    } else if (target.className === 'map__pin') {
+      showAd(target);
+    } else if (target.parentNode.className === 'map__pin') {
+      showAd(target.parentNode);
+    }
+  });
+});
 
