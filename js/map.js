@@ -10,10 +10,6 @@ var RUSSIAN_TYPES = {
   'house': 'Дом',
   'bungalo': 'Бунгало'
 };
-var MAIN_PIN_SIZES = {
-  width: 40,
-  height: 44
-};
 var TIMES = ['12:00', '13:00', '14:00'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var AUTHOR_AMOUNT = 8;
@@ -168,13 +164,23 @@ var createPin = function (author) {
 
 var filtersContainer = document.querySelector('.map__filters-container');
 
-var pinFragment = document.createDocumentFragment();
-var pins = [];
-for (i = 0; i < ads.length; i++) {
-  pins.push(createPin(ads[i]));
-  pinFragment.appendChild(pins[i]);
-}
 
+var pinFragment = document.createDocumentFragment();
+
+/**
+ * Создаем массив html-node меток объявлений
+ * @return {Array}
+ */
+var createPinsArray = function () {
+  var pins = [];
+  for (i = 0; i < ads.length; i++) {
+    pins.push(createPin(ads[i]));
+    pinFragment.appendChild(pins[i]);
+  }
+  return pins;
+};
+
+var pins = createPinsArray();
 /**
  * Создаем элемент объявления на основе объекта author
  * @param  {Object} author
@@ -212,10 +218,24 @@ var createAd = function (author) {
 };
 
 var mainPin = document.querySelector('.map__pin--main');
-var mainPinX = parseInt(mainPin.style.left, 10);
-var mainPinY = parseInt(mainPin.style.top, 10);
+var mapOverlay = document.querySelector('.map__overlay');
 var adForm = document.querySelector('.ad-form');
 var addressInput = document.querySelector('#address');
+
+var PIN_START_COORDS = {
+  x: mainPin.style.left,
+  y: mainPin.style.top
+};
+
+var mainPinSizes = {
+  width: mainPin.offsetWidth,
+  height: mainPin.offsetHeight
+};
+var needleHeight = 22;
+var needlePosition = {
+  x: mainPinSizes.width / 2,
+  y: mainPinSizes.height + needleHeight
+};
 
 /**
  * Получаем html-node и удаляем из разметки
@@ -245,28 +265,110 @@ var showAd = function (pinNode) {
   });
 };
 
-mainPin.addEventListener('mouseup', function () {
+/**
+ * Устанавливаем координаты метки в поле адреса
+ */
+var setCoords = function () {
+  var mainPinX = parseInt(mainPin.style.left, 10);
+  var mainPinY = parseInt(mainPin.style.top, 10);
+  addressInput.value = (mainPinX + needlePosition.x) + ', ' + (mainPinY + needlePosition.y);
+};
 
-  map.classList.remove('map--faded');
-  adForm.classList.remove('ad-form--disabled');
-  disableFieldsets(false);
-  addressInput.value = (mainPinX + MAIN_PIN_SIZES.width / 2) + ', ' + (mainPinY + MAIN_PIN_SIZES.height);
-  var pinsNodes = document.querySelector('.map__pins');
-  pinsNodes.appendChild(pinFragment);
+setCoords();
 
-  pinsNodes.addEventListener('click', function (evt) {
-    var target = evt.target;
-    if (target.classList.contains('map__pin--main') ||
-        target.parentNode.classList.contains('map__pin--main')) {
-      return;
-    } else if (target.className === 'map__pin') {
-      showAd(target);
-    } else if (target.parentNode.className === 'map__pin') {
-      showAd(target.parentNode);
+var pinsNodes = document.querySelector('.map__pins');
+
+
+/**
+ * Переводим страницу в активное состояние, если true. Деактивируем, если false
+ * @param  {Boolean} isActive
+ */
+var activatePage = function (isActive) {
+  if (!isActive) {
+    map.classList.add('map--faded');
+    adForm.classList.add('ad-form--disabled');
+    disableFieldsets(true);
+
+    pinsNodes.innerHTML = '';
+    pinsNodes.appendChild(mapOverlay);
+    mainPin.style.left = PIN_START_COORDS.x;
+    mainPin.style.top = PIN_START_COORDS.y;
+    pinsNodes.appendChild(mainPin);
+    var popup = document.querySelector('.popup');
+    if (popup) {
+      closePopup(popup);
     }
-  });
-});
 
+    setCoords();
+  } else {
+    map.classList.remove('map--faded');
+    adForm.classList.remove('ad-form--disabled');
+    disableFieldsets(false);
+    pinFragment = document.createDocumentFragment();
+    pins = createPinsArray();
+    pinsNodes.appendChild(pinFragment);
+
+    pinsNodes.addEventListener('click', function (clickEvt) {
+      var target = clickEvt.target;
+      if (target.classList.contains('map__pin--main') ||
+          target.parentNode.classList.contains('map__pin--main')) {
+        return;
+      } else if (target.className === 'map__pin') {
+        showAd(target);
+      } else if (target.parentNode.className === 'map__pin') {
+        showAd(target.parentNode);
+      }
+    });
+
+    setCoords();
+  }
+};
+
+mainPin.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
+
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  var mouseMoveHadler = function (moveEvt) {
+    moveEvt.preventDefault();
+
+    var shift = {
+      x: startCoords.x - moveEvt.clientX,
+      y: startCoords.y - moveEvt.clientY
+    };
+
+    startCoords = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+    var mapWidth = map.getBoundingClientRect().width;
+    var newX = mainPin.offsetLeft - shift.x;
+    if (newX >= 0 && newX <= (mapWidth - mainPinSizes.width)) {
+      mainPin.style.left = (newX) + 'px';
+    }
+    var newY = mainPin.offsetTop - shift.y;
+    if (newY >= 130 && newY <= 630) {
+      mainPin.style.top = (newY) + 'px';
+    }
+
+    setCoords();
+  };
+
+  var mouseUpHadler = function (upEvt) {
+    upEvt.preventDefault();
+
+    document.removeEventListener('mousemove', mouseMoveHadler);
+    document.removeEventListener('mouseup', mouseUpHadler);
+
+    activatePage(true);
+  };
+
+  document.addEventListener('mousemove', mouseMoveHadler);
+  document.addEventListener('mouseup', mouseUpHadler);
+});
 
 var typeInput = document.querySelector('#type');
 var priceInput = document.querySelector('#price');
@@ -278,11 +380,21 @@ var minPriceType = {
   'bungalo': 0
 };
 
-typeInput.addEventListener('change', function () {
+/**
+ * Устанавливаем минимальную цену за выбранный тип жилья
+ */
+var setTypePrice = function () {
   var typeValue = minPriceType[typeInput.value];
   priceInput.min = typeValue;
   priceInput.placeholder = typeValue;
+};
+
+setTypePrice();
+
+typeInput.addEventListener('change', function () {
+  setTypePrice();
 });
+
 
 var timeinInput = document.querySelector('#timein');
 var timeoutInput = document.querySelector('#timeout');
@@ -320,4 +432,11 @@ capacityInput.addEventListener('change', function () {
 
 roomNumberInput.addEventListener('change', function () {
   checkCapacity();
+});
+
+
+var resetButton = document.querySelector('.ad-form__reset');
+resetButton.addEventListener('click', function () {
+  adForm.reset();
+  activatePage(false);
 });
