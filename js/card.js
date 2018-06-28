@@ -2,48 +2,45 @@
 
 (function () {
 
-  var ads = [];
-
   /**
    * Создаем объект объявления на основе исходных данных
    * @param  {Number} index
    * @return {Object}
    */
-  var createAuthor = function (index) {
-    var locationX = window.utils.getRandomNumberFrominterval(window.data.MIN_X, window.data.MAX_X);
-    var locationY = window.utils.getRandomNumberFrominterval(window.data.MIN_Y, window.data.MAX_Y);
-    var ad = {
-      'author': {
-        'avatar': 'img/avatars/user0' + (index + 1) + '.png'
-      },
+  // var createAuthor = function (index) {
+  //   var locationX = window.utils.getRandomNumberFrominterval(window.data.MIN_X, window.data.MAX_X);
+  //   var locationY = window.utils.getRandomNumberFrominterval(window.data.MIN_Y, window.data.MAX_Y);
+  //   var ad = {
+  //     'author': {
+  //       'avatar': 'img/avatars/user0' + (index + 1) + '.png'
+  //     },
 
-      'offer': {
-        'title': window.utils.getRandomeElement(window.data.TITLES, true),
-        'address': locationX + ', ' + locationY,
-        'price': window.utils.getRandomNumberFrominterval(window.data.MIN_PRICE, window.data.MAX_PRICE),
-        'type': window.utils.getRandomeElement(window.data.TYPES),
-        'rooms': window.utils.getRandomNumberFrominterval(window.data.MIN_AMOUNT_ROOMS, window.data.MAX_AMOUNT_ROOMS),
-        'guests': window.utils.getRandomNumberFrominterval(window.data.MIN_AMOUNT_GUESTS, window.data.MAX_AMOUNT_GUESTS),
-        'checkin': window.utils.getRandomeElement(window.data.TIMES),
-        'checkout': window.utils.getRandomeElement(window.data.TIMES),
-        'features': window.utils.getRandomArray(window.data.FEATURES, true),
-        'description': '',
-        'photos': window.utils.getRandomArray(window.data.PHOTOS)
-      },
+  //     'offer': {
+  //       'title': window.utils.getRandomeElement(window.data.TITLES, true),
+  //       'address': locationX + ', ' + locationY,
+  //       'price': window.utils.getRandomNumberFrominterval(window.data.MIN_PRICE, window.data.MAX_PRICE),
+  //       'type': window.utils.getRandomeElement(window.data.TYPES),
+  //       'rooms': window.utils.getRandomNumberFrominterval(window.data.MIN_AMOUNT_ROOMS, window.data.MAX_AMOUNT_ROOMS),
+  //       'guests': window.utils.getRandomNumberFrominterval(window.data.MIN_AMOUNT_GUESTS, window.data.MAX_AMOUNT_GUESTS),
+  //       'checkin': window.utils.getRandomeElement(window.data.TIMES),
+  //       'checkout': window.utils.getRandomeElement(window.data.TIMES),
+  //       'features': window.utils.getRandomArray(window.data.FEATURES, true),
+  //       'description': '',
+  //       'photos': window.utils.getRandomArray(window.data.PHOTOS)
+  //     },
 
-      'location': {
-        'x': locationX,
-        'y': locationY
-      }
-    };
-    return ad;
-  };
+  //     'location': {
+  //       'x': locationX,
+  //       'y': locationY
+  //     }
+  //   };
+  //   return ad;
+  // };
 
-  for (var i = 0; i < window.data.AUTHOR_AMOUNT; i++) {
-    var ad = createAuthor(i);
-    ads.push(ad);
-  }
-
+  // for (var i = 0; i < window.data.AUTHOR_AMOUNT; i++) {
+  //   var ad = createAuthor(i);
+  //   ads.push(ad);
+  // }
   var mapCard = document.querySelector('template')
                         .content
                         .querySelector('.map__card');
@@ -85,7 +82,7 @@
   };
 
   window.card = {
-    ads: ads,
+    // ads: ads,
     createAd: createAd
   };
 })();
