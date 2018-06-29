@@ -2,6 +2,8 @@
 
 (function () {
 
+  var KEY_CODE_ESC = 27;
+
   var typeInput = document.querySelector('#type');
   var priceInput = document.querySelector('#price');
 
@@ -68,9 +70,35 @@
 
   var adForm = document.querySelector('.ad-form');
   var resetButton = document.querySelector('.ad-form__reset');
+  var successPopup = document.querySelector('.success');
   resetButton.addEventListener('click', function () {
     adForm.reset();
     setTypePrice();
     window.map.activatePage(false);
+  });
+
+  var successPopupPressHadler = function (evt) {
+    if (evt.keyCode === KEY_CODE_ESC || evt.target === successPopup || evt.target.parentNode === successPopup) {
+      successPopup.classList.add('hidden');
+      document.removeEventListener('keydown', successPopupPressHadler);
+      document.removeEventListener('click', successPopupPressHadler);
+    }
+  };
+  /**
+   * Возвращаем форму в исходное состояние
+   */
+  var successHandler = function () {
+    adForm.reset();
+    setTypePrice();
+    window.map.activatePage(false);
+    successPopup.classList.remove('hidden');
+    document.addEventListener('keydown', successPopupPressHadler);
+    document.addEventListener('click', successPopupPressHadler);
+  };
+
+  adForm.addEventListener('submit', function (evt) {
+    var url = 'https://js.dump.academy/keksobooking';
+    window.backend.postData(url, new FormData(adForm), successHandler, window.utils.errorHandler);
+    evt.preventDefault();
   });
 })();
