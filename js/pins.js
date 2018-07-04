@@ -26,11 +26,12 @@
    * Создаем массив html-node меток объявлений
    * @param  {Html-node} pinFragment
    * @param  {Array} ads
+   * @param  {Number} amount
    * @return {Array}
    */
-  var createPinsArray = function (pinFragment, ads) {
+  var createPinsArray = function (pinFragment, ads, amount) {
     var pins = [];
-    for (var i = 0; i < ads.length; i++) {
+    for (var i = 0; i < amount; i++) {
       pins.push(createPin(ads[i]));
       pinFragment.appendChild(pins[i]);
     }
