@@ -28,6 +28,11 @@
   var filterCategories = ['price', 'type', 'rooms', 'guests'];
 
   var filtersBlock = document.querySelector('.map__filters');
+
+  /* При изменении значения одного из выпадаюших списков запоминаем выбранное
+  значение в словарь filtersIdToValue, который изначально установлен в значения
+  по умолчанию. Затем фильтруем массив объявлений и отрисовываем отфильтрованный
+  */
   filtersBlock.addEventListener('change', function (changeEvt) {
     window.map.checkPopup();
 
@@ -48,6 +53,11 @@
     inputValuesToFeatures[feauture] = defaultFeature;
   });
 
+  /* При клике на одно из удобств устанавливаем значение данного удобства в true,
+  если чекбокс удобства чекнут, в словарь inputValuesToFeatures, иначе false
+  (изначально установлен по умолчанию). Затем фильтруем массив объявлений
+  и отрисовываем отфильтрованный
+  */
   var featuresBlock = filtersBlock.querySelector('.map__features');
   featuresBlock.addEventListener('click', function (clickEvt) {
     window.map.checkPopup();
@@ -64,38 +74,59 @@
   });
 
   /**
-   * Фильтруем объявления и отрисовываем пины подходящих объявлений
+   * Фильтруем объявления массива adsArray по цене в зависимости от
+   * установленного значения цены. Затем возвращаем отфильтрованный массив
+   * @param  {Array} adsArray
+   * @return {Array}
    */
-  var filterAds = function () {
-    var filteredAds = window.data.ads.slice();
-
+  var filterPrice = function (adsArray) {
     var filterCategory = filterCategories[0];
     var selectValue = priceValueMap[filtersIdToValue['housing-price']];
-    filteredAds = filteredAds.filter(function (ad) {
+    adsArray = adsArray.filter(function (ad) {
       var optionPrice = ad.offer[filterCategory];
       if (selectValue === defaultSelectValue) {
         return ad;
       } else if (selectValue === priceValueMap.low) {
-        return optionPrice > priceValueMap.low && optionPrice < priceValueMap.middle;
+        return optionPrice >= priceValueMap.low && optionPrice < priceValueMap.middle;
       } else if (selectValue === priceValueMap.high) {
         return optionPrice > priceValueMap.high;
       } else {
-        return optionPrice < priceValueMap.high && optionPrice > priceValueMap.middle;
+        return optionPrice <= priceValueMap.high && optionPrice >= priceValueMap.middle;
       }
     });
+    return adsArray;
+  };
 
+  /**
+   * Фильтруем массив объявлений array по всем текущим значениям выпадающих списков,
+   * кроме цены(цена фильтруется в другой функции). Затем вовзращаем отфильтрованный
+   * массив
+   * @param  {Array} array
+   * @return {Array}
+   */
+  var filterSelectsWithoutPrice = function (array) {
     for (var i = 1; i < filterCategories.length; i++) {
       var currentCategory = filterCategories[i];
       var currentCategoryValue = filtersIdToValue[firstPartId + filterCategories[i]];
       if (currentCategoryValue !== defaultSelectValue) {
-        filteredAds = filteredAds.filter(function (ad) {
+        array = array.filter(function (ad) {
           return ad.offer[currentCategory].toString() === currentCategoryValue;
         });
       }
     }
+    return array;
+  };
 
-    filterCategory = 'features';
-    filteredAds = filteredAds.filter(function (ad) {
+  /**
+   * Фильтруем массив объявлений filteredArray в зависимости от выбранных дополни-
+   * тельных удобств(чекбоксы). Если удобство выбрано, то будем искать объявления
+   * с таким удобством. После возвращаем отфильтрованный массив.
+   * @param  {Array} filteredArray
+   * @return {Array}
+   */
+  var filterFeatures = function (filteredArray) {
+    var filterCategory = 'features';
+    filteredArray = filteredArray.filter(function (ad) {
       var features = ad.offer[filterCategory];
       var checkedFeatures = [];
 
@@ -106,36 +137,28 @@
       });
       var checkedFeaturesLength = checkedFeatures.length;
       if (checkedFeaturesLength > 0) {
-        var answer;
-        var counter = 0;
-        var checkedLength;
-        var longest;
-        var shortest;
-        if (checkedFeaturesLength < features.length) {
-          longest = features;
-          shortest = checkedFeatures;
-          checkedLength = features.length;
-        } else {
-          longest = checkedFeatures;
-          shortest = features;
-          checkedLength = checkedFeaturesLength;
-        }
-        for (i = 0; i < checkedLength; i++) {
-          if (shortest.indexOf(longest[i]) !== -1) {
-            counter += 1;
-            continue;
-          }
-        }
-        if (checkedFeaturesLength === counter) {
-          answer = true;
-        } else {
-          answer = false;
-        }
+        var answer = window.utils.arrayIncludesAnotherArray(checkedFeatures, features);
         return answer;
       } else {
         return ad;
       }
     });
+    return filteredArray;
+  };
+
+  /**
+   * Фильтруем объявления и отрисовываем пины подходящих объявлений. Создаем новый
+   * массив объявлений, сначала фильтруем его по цене, потом по значениям оставшихся
+   * выпадающих списков, после этот же массив фильтруем по выбранным удобствам и
+   * наконец отрисовываем отфильтрованный массив на страницу.
+   */
+  var filterAds = function () {
+    var filteredAds = window.data.ads.slice();
+
+    filteredAds = filterPrice(filteredAds);
+    filteredAds = filterSelectsWithoutPrice(filteredAds);
+    filteredAds = filterFeatures(filteredAds);
+
     window.map.renderPins(filteredAds);
   };
 })();
