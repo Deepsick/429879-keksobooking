@@ -53,7 +53,61 @@
     return newAd;
   };
 
+  var map = document.querySelector('.map');
+  /**
+   * Получаем html-node и удаляем из разметки
+   * @param  {Html-node} popup
+   */
+  var closePopup = function () {
+    var popup = document.querySelector('.popup');
+    map.removeChild(popup);
+    document.removeEventListener('keydown', popupEscPressHadler);
+    window.pins.activatePin(false);
+  };
+
+  /**
+   * Если нажат esc, то закрываем попап
+   * @param  {Object} evt
+   */
+  var popupEscPressHadler = function (evt) {
+    if (evt.keyCode === window.data.KeyCode.ESC) {
+      closePopup();
+    }
+  };
+
+  /**
+   * Если попап есть, то скрываем его
+   */
+  var removePopup = function () {
+    var popup = document.querySelector('.popup');
+    if (popup) {
+      closePopup();
+    }
+  };
+
+  var filtersContainer = document.querySelector('.map__filters-container');
+  /**
+   * Получаем htm-node метки pinNode и вставляем соответствующее объявление в разметку. Если
+   * объявление уже есть в разметке, то оно удаляется. Также вешаем на текущее объявление
+   * обработчика клика для кнопки закрытия попапа.
+   * @param  {Html-node} pinNode
+   * @param  {Array} pinsArray
+   * @param  {Array} adsArray
+   */
+  var showAd = function (pinNode, pinsArray, adsArray) {
+    var index = pinsArray.indexOf(pinNode);
+    removePopup();
+    filtersContainer.before(window.card.createAd(adsArray[index]));
+    var closePopupButton = document.querySelector('.popup__close');
+    closePopupButton.addEventListener('click', function () {
+      closePopup();
+    });
+    document.addEventListener('keydown', popupEscPressHadler);
+  };
+
   window.card = {
-    createAd: createAd
+    createAd: createAd,
+    showAd: showAd,
+    removePopup: removePopup
   };
 })();

@@ -121,10 +121,12 @@
   };
 
   var adForm = document.querySelector('.ad-form');
+  var filtersForm = document.querySelector('.map__filters');
   var resetButton = document.querySelector('.ad-form__reset');
   var successPopup = document.querySelector('.success');
   resetButton.addEventListener('click', function () {
     adForm.reset();
+    filtersForm.reset();
     setTypePrice();
     resetPhotos();
     window.map.activatePage(false);
@@ -149,6 +151,7 @@
     document.removeEventListener('keydown', successPopupPressHadler);
     document.removeEventListener('click', successPopupPressHadler);
     adForm.reset();
+    filtersForm.reset();
     setTypePrice();
     checkCapacity();
     resetPhotos();
