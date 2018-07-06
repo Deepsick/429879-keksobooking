@@ -86,6 +86,18 @@
     return filteredAds;
   };
 
+  var filterSelects = ['type', 'price', 'rooms', 'guests'];
+
+  /**
+   * Возвращаем состояние filterState по умолчанию
+   */
+  var resetFilterState = function () {
+    filterSelects.forEach(function (category) {
+      filterState[category] = defaultSelectValue;
+    });
+    filterState.features.splice(0, filterState.features.length);
+  };
+
   var filterForm = document.querySelector('.map__filters');
 
   filterForm.addEventListener('change', function (changeEvt) {
@@ -93,4 +105,8 @@
     var filteredArray = getFilteredArray();
     window.pins.updatePins(filteredArray);
   });
+
+  window.filter = {
+    resetFilterState: resetFilterState
+  };
 })();

@@ -130,6 +130,7 @@
     setTypePrice();
     resetPhotos();
     window.map.activatePage(false);
+    window.filter.resetFilterState();
   });
 
   /**
@@ -156,6 +157,7 @@
     checkCapacity();
     resetPhotos();
     window.map.activatePage(false);
+    window.filter.resetFilterState();
     successPopup.classList.remove('hidden');
     document.addEventListener('keydown', successPopupPressHadler);
     document.addEventListener('click', successPopupPressHadler);
