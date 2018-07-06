@@ -61,6 +61,42 @@
   };
 
   /**
+   * Проверяем, содержит ли массив checkedArray все элементы массива basisArray.
+   * Если да, то возвращаем true, иначе false
+   * @param  {Array} basisArray
+   * @param  {Array} checkedArray
+   * @return {Boolean}
+   */
+  var arrayIncludesAnotherArray = function (basisArray, checkedArray) {
+    var answer;
+    var counter = 0;
+    var checkedLength;
+    var longest;
+    var shortest;
+    if (basisArray.length < checkedArray.length) {
+      longest = checkedArray;
+      shortest = basisArray;
+      checkedLength = checkedArray.length;
+    } else {
+      longest = basisArray;
+      shortest = checkedArray;
+      checkedLength = basisArray.length;
+    }
+    for (var i = 0; i < checkedLength; i++) {
+      if (shortest.indexOf(longest[i]) !== -1) {
+        counter += 1;
+        continue;
+      }
+    }
+    if (basisArray.length === counter) {
+      answer = true;
+    } else {
+      answer = false;
+    }
+    return answer;
+  };
+
+  /**
    * Показываем окно с ошибкой, если данные не загрузились
    * @param  {String} errorMessage
    */
@@ -104,6 +140,7 @@
     getRandomeElement: getRandomeElement,
     getRandomNumberFrominterval: getRandomNumberFrominterval,
     getRandomArray: getRandomArray,
+    arrayIncludesAnotherArray: arrayIncludesAnotherArray,
     errorHandler: errorHandler
   };
 })();

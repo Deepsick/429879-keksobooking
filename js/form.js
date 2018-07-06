@@ -3,9 +3,11 @@
 (function () {
 
   var KEY_CODE_ESC = 27;
+  var URL = 'https://js.dump.academy/keksobooking';
 
   var typeInput = document.querySelector('#type');
   var priceInput = document.querySelector('#price');
+  var titleInput = document.querySelector('#title');
 
   var minPriceType = {
     'palace': 10000,
@@ -44,6 +46,19 @@
   var capacityInput = document.querySelector('#capacity');
 
   /**
+   * Подсвечиваем неверно заполненное поле красной рамкой
+   * @param  {Boolean} isHighlightted
+   * @param  {Object}  input
+   */
+  var highlightInput = function (isHighlightted, input) {
+    if (isHighlightted) {
+      input.style.boxShadow = '0 0 1px 1px red';
+    } else {
+      input.style.boxShadow = 'none';
+    }
+  };
+
+  /**
    * Проверяем синхронизацию количество выбранных гостей с количеством выбранных комнат
    */
   var checkCapacity = function () {
@@ -55,8 +70,33 @@
       capacityInput.setCustomValidity('Слишком много гостей для такого количества комнат!');
     } else {
       capacityInput.setCustomValidity('');
+      highlightInput(false, capacityInput);
     }
   };
+
+  capacityInput.addEventListener('invalid', function () {
+    highlightInput(true, capacityInput);
+  });
+
+  priceInput.addEventListener('invalid', function () {
+    highlightInput(true, priceInput);
+  });
+
+  priceInput.addEventListener('change', function () {
+    if (priceInput.validity.valid) {
+      highlightInput(false, priceInput);
+    }
+  });
+
+  titleInput.addEventListener('invalid', function () {
+    highlightInput(true, titleInput);
+  });
+
+  titleInput.addEventListener('change', function () {
+    if (titleInput.validity.valid) {
+      highlightInput(false, titleInput);
+    }
+  });
 
   checkCapacity();
 
@@ -68,15 +108,35 @@
     checkCapacity();
   });
 
+  var avataerPreview = document.querySelector('.ad-form-header__preview img');
+  var photoBlock = document.querySelector('.ad-form__photo');
+  var defaultAvatar = avataerPreview.src;
+
+  /**
+   * Очищаем блоки с фотографиями
+   */
+  var resetPhotos = function () {
+    avataerPreview.src = defaultAvatar;
+    photoBlock.innerHTML = '';
+  };
+
   var adForm = document.querySelector('.ad-form');
+  var filtersForm = document.querySelector('.map__filters');
   var resetButton = document.querySelector('.ad-form__reset');
   var successPopup = document.querySelector('.success');
   resetButton.addEventListener('click', function () {
     adForm.reset();
+    filtersForm.reset();
     setTypePrice();
+    resetPhotos();
     window.map.activatePage(false);
+    window.filter.resetFilterState();
   });
 
+  /**
+   * Прячем блок .success, если нажат esc или клик по экрану браузера
+   * @param  {Object} evt [description]
+   */
   var successPopupPressHadler = function (evt) {
     if (evt.keyCode === KEY_CODE_ESC || evt.target === successPopup || evt.target.parentNode === successPopup) {
       successPopup.classList.add('hidden');
@@ -84,21 +144,27 @@
       document.removeEventListener('click', successPopupPressHadler);
     }
   };
+
   /**
    * Возвращаем форму в исходное состояние
    */
   var successHandler = function () {
+    document.removeEventListener('keydown', successPopupPressHadler);
+    document.removeEventListener('click', successPopupPressHadler);
     adForm.reset();
+    filtersForm.reset();
     setTypePrice();
+    checkCapacity();
+    resetPhotos();
     window.map.activatePage(false);
+    window.filter.resetFilterState();
     successPopup.classList.remove('hidden');
     document.addEventListener('keydown', successPopupPressHadler);
     document.addEventListener('click', successPopupPressHadler);
   };
 
   adForm.addEventListener('submit', function (evt) {
-    var url = 'https://js.dump.academy/keksobooking';
-    window.backend.postData(url, new FormData(adForm), successHandler, window.utils.errorHandler);
     evt.preventDefault();
+    window.backend.postData(URL, new FormData(adForm), successHandler, window.utils.errorHandler);
   });
 })();
