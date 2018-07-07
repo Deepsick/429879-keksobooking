@@ -108,15 +108,15 @@
     checkCapacity();
   });
 
-  var avataerPreview = document.querySelector('.ad-form-header__preview img');
+  var avatarPreview = document.querySelector('.ad-form-header__preview img');
   var photoBlock = document.querySelector('.ad-form__photo');
-  var defaultAvatar = avataerPreview.src;
+  var defaultAvatar = avatarPreview.src;
 
   /**
    * Очищаем блоки с фотографиями
    */
   var resetPhotos = function () {
-    avataerPreview.src = defaultAvatar;
+    avatarPreview.src = defaultAvatar;
     photoBlock.innerHTML = '';
   };
 
@@ -131,11 +131,14 @@
     resetPhotos();
     window.map.activatePage(false);
     window.filter.resetFilterState();
+    highlightInput(false, priceInput);
+    highlightInput(false, titleInput);
+    highlightInput(false, capacityInput);
   });
 
   /**
    * Прячем блок .success, если нажат esc или клик по экрану браузера
-   * @param  {Object} evt [description]
+   * @param  {Object} evt
    */
   var successPopupPressHadler = function (evt) {
     if (evt.keyCode === KEY_CODE_ESC || evt.target === successPopup || evt.target.parentNode === successPopup) {
@@ -146,7 +149,7 @@
   };
 
   /**
-   * Возвращаем форму в исходное состояние
+   * Возвращаем страницу в исходное состояние
    */
   var successHandler = function () {
     document.removeEventListener('keydown', successPopupPressHadler);

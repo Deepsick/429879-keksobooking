@@ -2,24 +2,31 @@
 
 (function () {
 
-  var priceHelper = {
+  var DEFAULT_SELECT_VALUE = 'any';
+
+  var Price = {
+    MIN: 10000,
+    MAX: 50000
+  };
+
+  var checkPrice = {
     low: function (value) {
-      return value < 10000;
+      return value < Price.MIN;
     },
     middle: function (value) {
-      return value >= 10000 && value <= 50000;
+      return value >= Price.MIN && value <= Price.MAX;
     },
     high: function (value) {
-      return value > 50000;
+      return value > Price.MAX;
     }
   };
 
-  var defaultSelectValue = 'any';
+
   var filterState = {
-    type: defaultSelectValue,
-    price: defaultSelectValue,
-    rooms: defaultSelectValue,
-    guests: defaultSelectValue,
+    type: DEFAULT_SELECT_VALUE,
+    price: DEFAULT_SELECT_VALUE,
+    rooms: DEFAULT_SELECT_VALUE,
+    guests: DEFAULT_SELECT_VALUE,
     features: []
   };
 
@@ -55,30 +62,30 @@
    */
   var getFilteredArray = function () {
     var filteredAds = window.data.ads.filter(function (ad) {
-      var checkingArray = [];
+      var checkedItems = [];
 
-      if (filterState.type !== 'any') {
-        checkingArray.push(filterState.type === ad.offer.type);
+      if (filterState.type !== DEFAULT_SELECT_VALUE) {
+        checkedItems.push(filterState.type === ad.offer.type);
       }
 
-      if (filterState.rooms !== 'any') {
-        checkingArray.push(+filterState.rooms === ad.offer.rooms);
+      if (filterState.rooms !== DEFAULT_SELECT_VALUE) {
+        checkedItems.push(+filterState.rooms === ad.offer.rooms);
       }
 
-      if (filterState.guests !== 'any') {
-        checkingArray.push(+filterState.guests === ad.offer.guests);
+      if (filterState.guests !== DEFAULT_SELECT_VALUE) {
+        checkedItems.push(+filterState.guests === ad.offer.guests);
       }
 
-      if (filterState.price !== 'any') {
-        checkingArray.push(priceHelper[filterState.price](ad.offer.price));
+      if (filterState.price !== DEFAULT_SELECT_VALUE) {
+        checkedItems.push(checkPrice[filterState.price](ad.offer.price));
       }
 
       if (filterState.features.length > 0) {
-        var answer = window.utils.arrayIncludesAnotherArray(filterState.features, ad.offer.features);
-        checkingArray.push(answer);
+        var answer = window.utils.checkEqualityOfArrays(filterState.features, ad.offer.features);
+        checkedItems.push(answer);
       }
 
-      return checkingArray.every(function (isValid) {
+      return checkedItems.every(function (isValid) {
         return isValid;
       });
     });
@@ -93,7 +100,7 @@
    */
   var resetFilterState = function () {
     filterSelects.forEach(function (category) {
-      filterState[category] = defaultSelectValue;
+      filterState[category] = DEFAULT_SELECT_VALUE;
     });
     filterState.features.splice(0, filterState.features.length);
   };

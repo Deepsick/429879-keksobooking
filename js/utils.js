@@ -45,19 +45,19 @@
    * @return {Array}
    */
   var getRandomArray = function (array, isRandomLength) {
-    var newArray = [];
+    var newItems = [];
     var arrayLength = array.length;
     if (isRandomLength) {
       arrayLength = getRandomNumberFrominterval(0, arrayLength + 1);
     }
     while (arrayLength > 0) {
       var randomUniqueElement = getRandomeElement(array, true, true);
-      if (newArray.indexOf(randomUniqueElement) === -1) {
-        newArray.push(randomUniqueElement);
+      if (newItems.indexOf(randomUniqueElement) === -1) {
+        newItems.push(randomUniqueElement);
         arrayLength--;
       }
     }
-    return newArray;
+    return newItems;
   };
 
   /**
@@ -67,7 +67,7 @@
    * @param  {Array} checkedArray
    * @return {Boolean}
    */
-  var arrayIncludesAnotherArray = function (basisArray, checkedArray) {
+  var checkEqualityOfArrays = function (basisArray, checkedArray) {
     var answer;
     var counter = 0;
     var checkedLength;
@@ -88,11 +88,7 @@
         continue;
       }
     }
-    if (basisArray.length === counter) {
-      answer = true;
-    } else {
-      answer = false;
-    }
+    answer = basisArray.length === counter ? true : false;
     return answer;
   };
 
@@ -113,7 +109,8 @@
     node.style.borderRadius = '30%';
     node.style.fontSize = '30px';
     node.style.textAlign = 'center';
-    node.style.lineHeight = NODE_WIDTH + 'px';
+    node.style.paddingTop = '40px';
+    node.style.lineHeight = NODE_WIDTH / 4 + 'px';
     node.textContent = errorMessage;
 
     var closeButton = document.createElement('button');
@@ -140,7 +137,7 @@
     getRandomeElement: getRandomeElement,
     getRandomNumberFrominterval: getRandomNumberFrominterval,
     getRandomArray: getRandomArray,
-    arrayIncludesAnotherArray: arrayIncludesAnotherArray,
+    checkEqualityOfArrays: checkEqualityOfArrays,
     errorHandler: errorHandler
   };
 })();

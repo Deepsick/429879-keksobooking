@@ -2,7 +2,7 @@
 
 (function () {
 
-  var RUSSIAN_TYPES = {
+  var adTypeToPopupType = {
     'palace': 'Дворец',
     'flat': 'Квартира',
     'house': 'Дом',
@@ -23,7 +23,7 @@
   var ads;
 
   window.data = {
-    RUSSIAN_TYPES: RUSSIAN_TYPES,
+    adTypeToPopupType: adTypeToPopupType,
     MIN_X: MIN_X,
     MAX_X: MAX_X,
     MIN_Y: MIN_Y,

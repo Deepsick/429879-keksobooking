@@ -3,7 +3,7 @@
 (function () {
 
   var fileChooser = document.querySelector('.ad-form__field input[type=file]');
-  var avataerPreview = document.querySelector('.ad-form-header__preview img');
+  var avatarPreview = document.querySelector('.ad-form-header__preview img');
 
   fileChooser.addEventListener('change', function () {
     var file = fileChooser.files[0];
@@ -19,7 +19,7 @@
         var reader = new FileReader();
 
         reader.addEventListener('load', function () {
-          avataerPreview.src = reader.result;
+          avatarPreview.src = reader.result;
         });
 
         reader.readAsDataURL(file);

@@ -59,7 +59,7 @@
   /**
    * При клике на пин запускаем функцию, которая отрисовывает объявление и
    * подсвечивает пин
-   * @param  {Object} evt [description]
+   * @param  {Object} evt
    */
   var showPopup = function (evt) {
     var target = evt.target;
@@ -77,7 +77,7 @@
 
   /**
    * Если нажат enter, показываем попап
-   * @param  {[type]} pressEvt [description]
+   * @param  {[type]} pressEvt
    */
   var pinEnterPressHadler = function (pressEvt) {
     if (pressEvt.keyCode === window.data.KeyCode.ENTER) {
@@ -97,7 +97,7 @@
   var mainPin = document.querySelector('.map__pin--main');
   /**
    * Отрисовываем пины на основе массива объявлений array
-   * @param  {[type]} array [description]
+   * @param  {[type]} array
    */
   var renderPins = function (array) {
     pinsNodes.removeEventListener('click', pinsNodesClickHandler);
@@ -117,10 +117,10 @@
    * Убираем текущие пины с карты и отрисовываем новые в соответствии массиву filteredArray
    * @param  {Array} filteredArray
    */
-  var updatePins = function (filteredArray) {
+  var updatePins = window.debounce(function (filteredArray) {
     window.card.removePopup();
     renderPins(filteredArray);
-  };
+  });
 
 
   window.pins = {

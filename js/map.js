@@ -14,6 +14,8 @@
     window.data.ads = ads;
   };
 
+  window.backend.getData(URL, successHadler, window.utils.errorHandler);
+
   var mainPin = document.querySelector('.map__pin--main');
   var map = document.querySelector('.map');
 
@@ -101,6 +103,10 @@
       y: evt.clientY
     };
 
+    /**
+     * При перемещении мышки устанавливаем новые координаты в поле адреса
+     * @param  {Object} moveEvt
+     */
     var mouseMoveHadler = function (moveEvt) {
       moveEvt.preventDefault();
 
@@ -119,13 +125,17 @@
         mainPin.style.left = (newX) + 'px';
       }
       var newY = mainPin.offsetTop - shift.y;
-      if (newY >= 130 && newY <= 630) {
+      if (newY >= window.data.MIN_Y && newY <= window.data.MAX_Y) {
         mainPin.style.top = (newY) + 'px';
       }
 
       setCoords();
     };
 
+    /**
+     * При отпускании левой кнопки мыши активируем страницу
+     * @param  {Object} upEvt
+     */
     var mouseUpHadler = function (upEvt) {
       upEvt.preventDefault();
 
@@ -142,6 +152,10 @@
     document.addEventListener('mouseup', mouseUpHadler);
   });
 
+  /**
+   * Если нажат enter при фокусе на главный пин, запускаем страницу
+   * @param  {Object} evt
+   */
   var mainPinEnterPressHandler = function (evt) {
     if (!isActive && evt.keyCode === window.data.KeyCode.ENTER) {
       activatePage(true);
@@ -151,8 +165,6 @@
   };
 
   mainPin.addEventListener('keydown', mainPinEnterPressHandler);
-
-  window.backend.getData(URL, successHadler, window.utils.errorHandler);
 
   window.map = {
     activatePage: activatePage,
