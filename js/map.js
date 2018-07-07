@@ -167,7 +167,7 @@
   mainPin.addEventListener('keydown', mainPinEnterPressHandler);
 
   window.map = {
-    activatePage: activatePage,
+    activatePage: activatePage
   };
 })();
 

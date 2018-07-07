@@ -2,12 +2,6 @@
 
 (function () {
 
-  var adTypeToPopupType = {
-    'palace': 'Дворец',
-    'flat': 'Квартира',
-    'house': 'Дом',
-    'bungalo': 'Бунгало'
-  };
   var AMOUNT_OF_PINS = 5;
   var MIN_X = 300;
   var MAX_X = 900;
@@ -18,6 +12,13 @@
   var KeyCode = {
     ESC: 27,
     ENTER: 13
+  };
+
+  var adTypeToPopupType = {
+    'palace': 'Дворец',
+    'flat': 'Квартира',
+    'house': 'Дом',
+    'bungalo': 'Бунгало'
   };
 
   var ads;

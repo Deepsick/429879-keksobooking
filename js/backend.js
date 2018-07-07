@@ -68,6 +68,6 @@
 
   window.backend = {
     postData: postData,
-    getData: getData,
+    getData: getData
   };
 })();
